@@ -51,31 +51,24 @@ async def on_connect():
 
 @BeatZ.event                
 async def on_message(message):
- if message.content.startswith('https://discord.gift/'):
-        code = re.search("https://discord.gift/(.*)", message.content).group(1)
-        if len(code) != 16:
-            print("\033[31mFake Code: \033[97m"+code+Fore.RESET)
-        else:
-            print(Fore.RED+f"Nitro Sniped: \033[97m"+code+Fore.RESET)
-            headers = {'Authorization': token}
-            r = requests.post(
-                f'https://discordapp.com/api/v6/entitlements/gift-codes/{code}/redeem', 
-                headers=headers,
-                ).text
-            if 'This gift has been redeemed already.' in r:
-                print("\033[31mCode Already \033[97mRedeemed")
-
- if message.content.startswith('discord.gift/'):
-     code = re.search("discord.gift/(.*)", message.content).group(1)
-     if len(code) != 16:
-         print("\033[31mFake Code: \033[97m"+code+Fore.RESET)
-     else:
-         print(Fore.RED+"Nitro Sniped: \033[97m"+code+Fore.RESET)
+          code = re.search(r'(discord.gift|discordapp.com/gifts)/\w{16,24}', message.content).group(0)
+         print("\033[31mPOSSIBLE CODE: \033[97m"+code+Fore.RESET)
+         token = config.get('token')
          headers = {'Authorization': token}
          r = requests.post(
              f'https://discordapp.com/api/v6/entitlements/gift-codes/{code}/redeem', 
              headers=headers,
-         ).text
+             ).text
+         if 'This gift has been redeemed already.' in r:
+             print("\033[31mCode Already \033[97mRedeemed")
+         elif 'nitro' in r:
+             print(Fore.GREEN+"[+] found nitro : "+code+Fore.RESET)
+         elif 'Unknow Gift Code' in r:
+             print("[-] Invaild Code")
+     except (AttributeError):
+        pass
+ else:
+     pass
 
 if __name__ == '__main__':
     Init()
